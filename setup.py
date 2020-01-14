@@ -1,2 +1,2 @@
-current_version=version='0.0.2'
+current_version=version='0.0.3'
 
