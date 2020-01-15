@@ -1,23 +1,32 @@
 from math import ceil
+import argparse
 
-# TODO добавить проверку входных параметров: pages, fmt, runs должны быть больше 1
-class ImpGenerator:
 
-    def __init__(self, pages: int = 8, first_page: int = 1, last_page: int = None, fmt: int = 3, runs: int = 1, nesting: int = 1) -> None:
+def cli_parse():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-np', '--number_of_pages', required=True, type=int)
+    parser.add_argument('-pps', '--pages_per_sheet', required=True, type=int)
+    parser.add_argument('-fp', '--first_page', default=1, type=int)
+    parser.add_argument('-lp', '--last_page', type=int)
+    parser.add_argument('-ns', '--signatures', default=1, type=int)
+    parser.add_argument('-nt', '--nesting', default=1, type=int)
+    parser.add_argument('-hs', '--half_sheet', type=int)
+    return parser.parse_args()
+
+
+# TODO добавить проверку входных параметров: pages, pages_per_sheet, runs должны быть больше 1
+
+class ImpCalculator:
+
+    def __init__(self, pages: int, pages_per_sheet: int, first_page: int = 1,
+    last_page: int = None, runs : int = 1, nesting: int = 1) -> None:
         self.pages = pages
-        self.fmt = fmt
-        self.runs = runs
-        # nestin - количество газет в одной тетради (при печати "две в одной" nesting = 2)
-        self.nesting = nesting
+        self.pages_per_sheet = pages_per_sheet
         self.first_page = first_page
-        if last_page > 0:
-            self.last_page = last_page
-        else:
-            self.last_page = self.pages
-
-    @property
-    def pages_per_sheet(self):
-        return 2**self.fmt
+        self.last_page = last_page
+        self.runs = runs
+        # nesting - количество газет в одной тетради (при печати "две в одной" nesting = 2)
+        self.nesting = nesting
 
     @property
     def sequence(self):
@@ -35,3 +44,12 @@ class ImpGenerator:
         while len(pages) > 2 * count_of_sheets:
             pages = [(pages[i], pages[-(i + 1)]) for i in range(len(pages) // 2)]
         return pages
+
+
+if __name__ == '__main__':
+    params = cli_parse()
+    if params:
+        gen = ImpCalculator(params.number_of_pages, params.pages_per_sheet,
+        params.first_page, params.last_page, params.signatures, params.nesting)
+        result = gen.generate()
+        print(result)
