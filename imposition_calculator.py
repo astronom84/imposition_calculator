@@ -30,7 +30,8 @@ class ImpCalculator:
 
     @property
     def pages(self):
-        full_length = math.ceil(self.number_of_pages/self.pages_per_sheet)*self.pages_per_sheet
+        align = self.pages_per_sheet // 2
+        full_length = math.ceil(self.number_of_pages/align)*align
         blank_elements = [[0]]*(full_length - self.number_of_pages)
         full_seq = [[i] for i in range(1, self.number_of_pages+1)] + blank_elements
         # центральный разворот
