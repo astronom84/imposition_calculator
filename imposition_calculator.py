@@ -19,7 +19,7 @@ def cli_parse():
 class ImpCalculator:
 
     def __init__(self, number_of_pages: int, pages_per_sheet: int, first_page: int = 1,
-    last_page: int = None, runs : int = 1, nesting: int = 1) -> None:
+    last_page: int = 0, runs : int = 1, nesting: int = 0) -> None:
         self.number_of_pages = number_of_pages
         self.pages_per_sheet = pages_per_sheet
         self.first_page = first_page
@@ -31,12 +31,25 @@ class ImpCalculator:
     @property
     def pages(self):
         align = self.pages_per_sheet // 2
-        full_length = math.ceil(self.number_of_pages/align)*align
-        blank_elements = [[0]]*(full_length - self.number_of_pages)
-        full_seq = [[i] for i in range(1, self.number_of_pages+1)] + blank_elements
-        # центральный разворот
-        central_spread = math.ceil(len(full_seq)//2)
-        pages = full_seq[:central_spread]*self.nesting + full_seq[central_spread:]*self.nesting
+        number_of_pages = math.ceil(self.number_of_pages/align)*align
+        if self.last_page:
+            fp = min(self.first_page, self.last_page)
+            lp = max(self.last_page, self.first_page)
+        else:
+            fp = self.first_page
+            lp = fp + self.number_of_pages - 1
+        if (lp - fp + 1)  <= number_of_pages:
+            pages = [[i] for i in range(fp, lp+1)]
+            blank_elements = [[0]]*(number_of_pages - len(pages))
+            pages += blank_elements
+        else:
+            pages = [[fp + i] for i in range(number_of_pages // 2)]
+            pages += reversed([[lp - i] for i in range(number_of_pages // 2)])
+            
+        if self.nesting:
+            # центральный разворот
+            central_spread = math.ceil(len(pages)//2)
+            pages = pages[:central_spread]*self.nesting + pages[central_spread:]*self.nesting
         return pages
 
     @property

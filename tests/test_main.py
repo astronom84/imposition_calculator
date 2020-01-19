@@ -19,7 +19,8 @@ class ImpCalculator_TestCase(unittest.TestCase):
         self.assertDictEqual(target, result)
 
     def test_generate(self):
-        target = [{'number_of_pages': 4, 'pages_per_sheet': 4, 'sheets':
+        target = [
+                {'number_of_pages': 4, 'pages_per_sheet': 4, 'sheets':
                                                     [
                                                        {
                                                         'front': [1, 4],
@@ -27,14 +28,6 @@ class ImpCalculator_TestCase(unittest.TestCase):
                                                        }
                                                     ]
                    },
-#                  {'number_of_pages': 4, 'pages_per_sheet': 8, 'sheets': 
-#                                                    [
-#                                                       {
-#                                                        'front': [0, 0, 2, 3],
-#                                                        'back':  [0, 0, 1, 4]
-#                                                       }
-#                                                    ]
-#                   }, 
                   {'number_of_pages': 8, 'pages_per_sheet': 8, 'sheets':
                                                     [
                                                        {
@@ -59,14 +52,20 @@ class ImpCalculator_TestCase(unittest.TestCase):
                                          }
                                       ]
                  },
-                 ]
+      {'number_of_pages': 32, 'pages_per_sheet': 32, 'sheets':
+          [
+             {
+              'front': [1, 32, 16, 17, 8, 25, 9, 24, 4, 29, 13, 20, 5, 28, 12, 21],
+              'back':  [2, 31, 15, 18, 7, 26, 10, 23, 3, 30, 14, 19, 6, 27, 11, 22]
+             }
+          ]
+      }
+              ]
         result = []
-        gen = ImpCalculator(8, 8, 1, 8, 1, 1)
         for t in target:
-            gen.number_of_pages = t['number_of_pages']
-            gen.pages_per_sheet = t['pages_per_sheet']
-            result.append({'number_of_pages': gen.number_of_pages, 'pages_per_sheet': gen.pages_per_sheet, 'sheets': gen.generate()})
-        self.assertListEqual(target, result)
+            with self.subTest(t=t):
+                gen = ImpCalculator(t['number_of_pages'], t['pages_per_sheet'])
+                self.assertListEqual(t['sheets'], gen.generate())
 
 
 if __name__ == '__main__':
