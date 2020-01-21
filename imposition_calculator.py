@@ -19,11 +19,15 @@ def cli_parse():
 class ImpCalculator:
 
     def __init__(self, number_of_pages: int, pages_per_sheet: int, first_page: int = 1,
-    last_page: int = 0, runs : int = 1, nesting: int = 0) -> None:
+                last_page: int = 0, runs : int = 1, nesting: int = 0) -> None:
         self.number_of_pages = number_of_pages
         self.pages_per_sheet = pages_per_sheet
-        self.first_page = first_page
-        self.last_page = last_page
+        if last_page:
+            self.first_page = min(first_page, last_page)
+            self.last_page = max(last_page, first_page)
+        else:
+            self.first_page = first_page
+            self.last_page = self.first_page + self.number_of_pages - 1
         self.runs = runs
         # nesting - количество газет в одной тетради (при печати "две в одной" nesting = 2)
         self.nesting = nesting
@@ -32,23 +36,16 @@ class ImpCalculator:
     def pages(self):
         align = self.pages_per_sheet // 2
         number_of_pages = math.ceil(self.number_of_pages/align)*align
-        if self.last_page:
-            fp = min(self.first_page, self.last_page)
-            lp = max(self.last_page, self.first_page)
-        else:
-            fp = self.first_page
-            lp = fp + self.number_of_pages - 1
-        if (lp - fp + 1)  <= number_of_pages:
-            pages = [[i] for i in range(fp, lp+1)]
-            blank_elements = [[0]]*(number_of_pages - len(pages))
-            pages += blank_elements
-        else:
-            pages = [[fp + i] for i in range(number_of_pages // 2)]
-            pages += reversed([[lp - i] for i in range(number_of_pages // 2)])
-            
+        pages = [[0]]*number_of_pages
+        left_index = 0
+        right_index = min(number_of_pages, self.last_page) - 1
+        while left_index <= right_index:
+            pages[left_index] = [self.first_page + left_index]
+            pages[right_index] = [self.last_page - left_index]
+            left_index += 1
+            right_index -= 1
         if self.nesting:
-            # центральный разворот
-            central_spread = math.ceil(len(pages)//2)
+            central_spread = len(pages) // 2
             pages = pages[:central_spread]*self.nesting + pages[central_spread:]*self.nesting
         return pages
 
