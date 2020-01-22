@@ -29,39 +29,37 @@ class ImpCalculator:
             self.first_page = first_page
             self.last_page = self.first_page + self.number_of_pages - 1
         self.runs = runs
-        # nesting - количество газет в одной тетради (при печати "две в одной" nesting = 2)
+        # nesting - количество газет в одной тетради (при печати "две в одной" nesting = 1)
         self.nesting = nesting
 
     @property
     def pages(self):
         align = self.pages_per_sheet // 2
         number_of_pages = math.ceil(self.number_of_pages/align)*align
-        pages = [[0]]*number_of_pages
-        left_index = 0
+        pages = [0]*number_of_pages
         right_index = min(number_of_pages, self.last_page) - 1
-        while left_index <= right_index:
-            pages[left_index] = [self.first_page + left_index]
-            pages[right_index] = [self.last_page - left_index]
-            left_index += 1
-            right_index -= 1
+        middle = len(pages) // 2
+        for i in range(middle):
+            pages[i] = self.first_page + i
+            pages[right_index - i] = self.last_page - i
         if self.nesting:
-            central_spread = len(pages) // 2
-            pages = pages[:central_spread]*self.nesting + pages[central_spread:]*self.nesting
+            pages = pages[:middle]*self.nesting + pages[middle:]*self.nesting
         return pages
 
     @property
     def sections(self):
-        sections = self.pages[:]
+        sections = [[x] for x in self.pages[:]]
         folds = int(math.log2(self.pages_per_sheet)) - 1
         for _ in  range(folds):
-            sections=[(sections[i]+sections.pop()) for i in range(len(sections)//2)]
-        return sections 
+            middle = len(sections)//2
+            for i in range(middle):
+                sections[i] += sections.pop()
+        return sections
 
     @property
     def sheets(self):
         sections = self.sections[:]
-        sheets = [{"front": sections[i], "back":
-                    sections[i+1]} for i in range(0, len(sections), 2)]
+        sheets = [{"front": sections[i], "back": sections[i+1]} for i in range(0, len(sections), 2)]
         return sheets
 
     def generate(self):
