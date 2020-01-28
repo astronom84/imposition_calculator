@@ -5,8 +5,8 @@ from imposition_calculator import ImpCalculator
 class ImpCalculator_TestCase(unittest.TestCase):
     def test_init(self):
         target= dict(number_of_pages=24, first_page=1, last_page=24, pages_per_sheet=8,
-        runs=1, nesting=1)
-        gen = ImpCalculator(target['number_of_pages'], target['pages_per_sheet'], target['first_page'], target['last_page'], target['runs'], target['nesting'])
+        runs=1, nesting=1, half_sheet=0)
+        gen = ImpCalculator(target['number_of_pages'], target['pages_per_sheet'], target['first_page'], target['last_page'], target['runs'], target['nesting'], target['half_sheet'])
         self.assertDictEqual(target, gen.__dict__)
 
     def test_init_last_page_is_empty(self):
@@ -39,14 +39,14 @@ class ImpCalculator_TestCase(unittest.TestCase):
     def test_generate(self):
         target = [
             # A1
-            {'number_of_pages': 2, 'pages_per_sheet': 2, 'sheets':
-                [
-                    {
-                        'front': [1],
-                        'back': [2]
-                    }
-                ]
-             },
+#            {'number_of_pages': 2, 'pages_per_sheet': 2, 'sheets':
+#                [
+#                    {
+#                        'front': [1],
+#                        'back': [2]
+#                    }
+#                ]
+#             },
                 # A2
             {'number_of_pages': 4, 'pages_per_sheet': 4, 'sheets':
                 [
@@ -107,6 +107,20 @@ class ImpCalculator_TestCase(unittest.TestCase):
                     }
                   ]
         gen = ImpCalculator(8, 8, 1, 32, 1, 0)
+        self.assertListEqual(target, gen.generate())
+
+    def test_generate_12A3_half_2(self):
+        target = [
+                    {
+                        'front': [1, 12, 6, 7],
+                        'back':  [2, 11, 5, 8]
+                    },
+                    {
+                        'front': [0, 0, 4, 9],
+                        'back':  [0, 0, 3, 10]
+                    }
+                  ]
+        gen = ImpCalculator(12, 8, 1, 12, 1, 0, 2)
         self.assertListEqual(target, gen.generate())
 
 if __name__ == '__main__':
