@@ -39,14 +39,14 @@ class ImpCalculator_TestCase(unittest.TestCase):
     def test_generate(self):
         target = [
             # A1
-#            {'number_of_pages': 2, 'pages_per_sheet': 2, 'sheets':
-#                [
-#                    {
-#                        'front': [1],
-#                        'back': [2]
-#                    }
-#                ]
-#             },
+            {'number_of_pages': 2, 'pages_per_sheet': 2, 'sheets':
+                [
+                    {
+                        'front': [1],
+                        'back': [2]
+                    }
+                ]
+             },
                 # A2
             {'number_of_pages': 4, 'pages_per_sheet': 4, 'sheets':
                 [
@@ -107,6 +107,16 @@ class ImpCalculator_TestCase(unittest.TestCase):
                     }
                   ]
         gen = ImpCalculator(8, 8, 1, 32, 1, 0)
+        self.assertListEqual(target, gen.generate())
+
+    def test_generate_4A3_half_1(self):
+        target = [
+                    {
+                        'front': [0, 0, 2, 3],
+                        'back':  [0, 0, 1, 4]
+                    },
+                  ]
+        gen = ImpCalculator(4, 8, 1, 4, 1, 0, 1)
         self.assertListEqual(target, gen.generate())
 
     def test_generate_12A3_half_2(self):

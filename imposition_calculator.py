@@ -21,7 +21,7 @@ class ImpCalculator:
                  first_page: int = 1,
                  last_page: int = 0,
                  runs: int = 1,
-                 nesting: int = 0,
+                 nesting: int = 1,
                  half_sheet: int = 0) -> None:
         """Инициализация экземпляра класса ImpCalculator
 
@@ -47,7 +47,7 @@ class ImpCalculator:
             self.first_page = first_page
             self.last_page = self.first_page + self.number_of_pages - 1
         self.runs = runs
-        self.nesting = nesting
+        self.nesting = nesting or 1
         self.half_sheet = half_sheet
 
     @property
@@ -58,33 +58,18 @@ class ImpCalculator:
                 Список страниц
         """
         align = self.pages_per_sheet // 2
-        number_of_pages = math.ceil(self.number_of_pages/align)*align
-        pages = [0]*number_of_pages
-        right_index = min(number_of_pages, self.last_page) - 1
-        middle = len(pages) // 2
-        for index in range(middle):
-            pages[index] = self.first_page + index
-            pages[right_index - index] = self.last_page - index
-        if self.nesting:
-            pages = pages[:middle]*self.nesting + pages[middle:]*self.nesting
-        return pages
-
-    @property
-    def sections(self):
-        """ Атрибут класса, содержащий список секций в конечной раскладке.
-        Каждая секция - одна сторона (лицевая или оборотная) одного листа
-            Returns:
-                Список сеций
-        """
-        sections = [[x] for x in self.pages[:]]
-        while len(sections[0]) < self.pages_per_sheet // 4:
-            sections = [sections[i] + sections.pop() for i in range(len(sections)//2)]        
-        if self.half_sheet:
-            blank_pages = [0]*len(sections[0])
-            sections.insert(2*(self.half_sheet-1), blank_pages)
-            sections.insert(2*(self.half_sheet-1), blank_pages)
-        sections = [sections[i] + sections.pop() for i in range(len(sections)//2)]
-        return sections
+        number_of_pages = (math.ceil(self.number_of_pages/align)*align)
+        if (self.last_page - self.first_page) < number_of_pages-1:
+            result = list(range(self.first_page, self.last_page+1))
+            result += [0]*(number_of_pages-len(result))
+        else:
+            result = [0]*number_of_pages
+            middle = len(result) // 2
+            for i in range(middle):
+                result[i] = self.first_page + i
+                result[-(i+1)] = self.last_page - i
+#        print(f"pages = {result}")
+        return result
 
     @property
     def sheets(self):
@@ -92,10 +77,22 @@ class ImpCalculator:
             Returns:
                 Список листов раскладки
         """
-        sections = self.sections[:]
-        sheets = [{"front": sections[i], "back": sections[i+1]}
-                  for i in range(0, len(sections), 2)]
-        return sheets
+        quarters = [[x] for x in self.pages[:]]
+#        print(f"quarters = {quarters}")
+        if len(quarters[0]) <= self.pages_per_sheet // 4:
+            folds = int(math.log2(self.pages_per_sheet//2)) - 1
+            for _ in range(folds):
+                quarters = [quarters[i] + quarters.pop() for i in range(len(quarters)//2)]
+            if self.half_sheet:
+                blank_pages = [0]*len(quarters[0])
+                quarters.insert(2*(self.half_sheet-1), blank_pages)
+                quarters.insert(2*(self.half_sheet-1), blank_pages)
+            halves = [quarters[i] + quarters.pop() for i in range(len(quarters)//2)]
+        else:
+            halves = quarters
+        result = [{"front": halves[i], "back": halves[i+1]} for i in range(0, len(halves), 2)]
+#        print(f"sheets = {result}")
+        return result
 
     def generate(self):
         """ Метод возвращает список листов вычисленной раскладки
