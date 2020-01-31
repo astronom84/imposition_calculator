@@ -95,6 +95,7 @@ class ImpCalculator:
             quarters *= self.nesting
             if len(quarters) % 4:
                 half_sheet = self.half_sheet or math.ceil(len(quarters)/4)
+#                print(f'hs = {half_sheet}')
                 blank_pages = [0]*len(quarters[0])
                 quarters.insert(2*(half_sheet-1), blank_pages)
                 quarters.insert(2*(half_sheet-1), blank_pages)
@@ -138,7 +139,8 @@ def main():
                             params.first_page,
                             params.last_page,
                             params.signatures,
-                            params.nesting)
+                            params.nesting,
+                            params.half_sheet)
         result = gen.generate()
         for i, sheet in enumerate(result):
             print(f"sheet {i+1}: front={sheet['front']}, back={sheet['back']}")
