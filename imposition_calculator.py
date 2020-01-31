@@ -40,6 +40,8 @@ class ImpCalculator:
 
         self.number_of_pages = number_of_pages
         self.pages_per_sheet = pages_per_sheet
+        self._pages_per_half_sheet = self.pages_per_sheet // 2
+        self._pages_per_quarter = self._pages_per_half_sheet // 2
         if last_page:
             self.first_page = min(first_page, last_page)
             self.last_page = max(last_page, first_page)
@@ -57,7 +59,7 @@ class ImpCalculator:
             Returns:
                 Список страниц
         """
-        align = self.pages_per_sheet // 2
+        align = self._pages_per_half_sheet
         number_of_pages = (math.ceil(self.number_of_pages/align)*align)
         if (self.last_page - self.first_page) < number_of_pages-1:
             result = list(range(self.first_page, self.last_page+1))
@@ -71,6 +73,14 @@ class ImpCalculator:
 #        print(f"pages = {result}")
         return result
 
+    def _combine_list(self, plist):
+        """ Вспомогательная функция, объединяет элементы входного списка:
+            первый с последним, второй с предпоследним и т.д.
+        """
+        plist = plist[:]
+        result = [plist[i] + plist[-(i+1)] for i in range(len(plist)//2)]
+        return result
+
     @property
     def sheets(self):
         """ Атрибут класса, содержащий список словарей, соответствующих листам.
@@ -78,18 +88,20 @@ class ImpCalculator:
                 Список листов раскладки
         """
         quarters = [[x] for x in self.pages[:]]
-#        print(f"quarters = {quarters}")
-        if len(quarters[0]) <= self.pages_per_sheet // 4:
-            folds = int(math.log2(self.pages_per_sheet//2)) - 1
+        if len(quarters[0]) <= self._pages_per_quarter:
+            folds = int(math.log2(self._pages_per_half_sheet)) - 1
             for _ in range(folds):
-                quarters = [quarters[i] + quarters.pop() for i in range(len(quarters)//2)]
-            if self.half_sheet:
+                quarters = self._combine_list(quarters)
+            quarters *= self.nesting
+            if len(quarters) % 4:
+                half_sheet = self.half_sheet or math.ceil(len(quarters)/4)
                 blank_pages = [0]*len(quarters[0])
-                quarters.insert(2*(self.half_sheet-1), blank_pages)
-                quarters.insert(2*(self.half_sheet-1), blank_pages)
-            halves = [quarters[i] + quarters.pop() for i in range(len(quarters)//2)]
+                quarters.insert(2*(half_sheet-1), blank_pages)
+                quarters.insert(2*(half_sheet-1), blank_pages)
+            halves = self._combine_list(quarters)
         else:
             halves = quarters
+#        print(f"halves = {halves}")
         result = [{"front": halves[i], "back": halves[i+1]} for i in range(0, len(halves), 2)]
 #        print(f"sheets = {result}")
         return result

@@ -5,7 +5,7 @@ from imposition_calculator import ImpCalculator
 class ImpCalculator_TestCase(unittest.TestCase):
     def test_init(self):
         target= dict(number_of_pages=24, first_page=1, last_page=24, pages_per_sheet=8,
-        runs=1, nesting=1, half_sheet=0)
+        runs=1, nesting=1, half_sheet=0, _pages_per_half_sheet=4, _pages_per_quarter=2)
         gen = ImpCalculator(target['number_of_pages'], target['pages_per_sheet'], target['first_page'], target['last_page'], target['runs'], target['nesting'], target['half_sheet'])
         self.assertDictEqual(target, gen.__dict__)
 
@@ -131,6 +131,20 @@ class ImpCalculator_TestCase(unittest.TestCase):
                     }
                   ]
         gen = ImpCalculator(12, 8, 1, 12, 1, 0, 2)
+        self.assertListEqual(target, gen.generate())
+
+    def test_generate_8A3_2in1(self):
+        target = [
+                    {
+                        'front': [1, 8, 4, 5],
+                        'back':  [2, 7, 3, 6]
+                    },
+                    {
+                        'front':  [3, 6, 2, 7],
+                        'back': [4, 5, 1, 8]
+                    }
+                  ]
+        gen = ImpCalculator(8, 8, 1, 8, 1, 2)
         self.assertListEqual(target, gen.generate())
 
 if __name__ == '__main__':
