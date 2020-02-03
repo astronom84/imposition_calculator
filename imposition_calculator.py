@@ -40,8 +40,7 @@ class ImpCalculator:
 
         self.number_of_pages = number_of_pages
         self.pages_per_sheet = pages_per_sheet
-        self._pages_per_half_sheet = self.pages_per_sheet // 2
-        self._pages_per_quarter = self._pages_per_half_sheet // 2
+        self._pages_per_section = self.pages_per_sheet // 2
         if last_page:
             self.first_page = min(first_page, last_page)
             self.last_page = max(last_page, first_page)
@@ -52,15 +51,21 @@ class ImpCalculator:
         self.nesting = nesting or 1
         self.half_sheet = half_sheet
 
-    @property
-    def pages(self):
-        """ Атрибут класса, содержащий список номеров страниц.
+    def _combine_list(self, plist):
+        """ Вспомогательная функция, объединяет элементы входного списка:
+            первый с последним, второй с предпоследним и т.д.
+        """
+        plist = plist[:]
+        result = [plist[i] + plist[-(i+1)] for i in range(len(plist)//2)]
+        return result
+
+    def _makePages(self):
+        """ Метод возвращает список страниц
         Длина списка кратна параметру pages_per_sheet
             Returns:
                 Список страниц
         """
-        align = self._pages_per_half_sheet
-        number_of_pages = (math.ceil(self.number_of_pages/align)*align)
+        number_of_pages = (math.ceil(self.number_of_pages/self._pages_per_section)*self._pages_per_section)
         if (self.last_page - self.first_page) < number_of_pages-1:
             result = list(range(self.first_page, self.last_page+1))
             result += [0]*(number_of_pages-len(result))
@@ -73,35 +78,40 @@ class ImpCalculator:
 #        print(f"pages = {result}")
         return result
 
-    def _combine_list(self, plist):
-        """ Вспомогательная функция, объединяет элементы входного списка:
-            первый с последним, второй с предпоследним и т.д.
+    def _makeSections(self):
+        """ Метод возвращает список "секций".
+        Секция соответствует стороне листа
+        Для листа А0 это будет часть, размером А2
+        В этом же методе добавляются пустые страницы для половинок, а также
+        обрабатывается случай печати нескольких копий в одной тетради
+            Returns: 
+                List
         """
-        plist = plist[:]
-        result = [plist[i] + plist[-(i+1)] for i in range(len(plist)//2)]
+        pages = self._makePages()
+        sections = [[x] for x in pages]
+        pages_per_quarter = self._pages_per_section // 2
+        if len(sections[0]) <= pages_per_quarter:
+            folds = int(math.log2(self._pages_per_section)) - 1
+            for _ in range(folds):
+                sections = self._combine_list(sections)
+            sections *= self.nesting
+            if len(sections) % 4:
+                half_sheet = self.half_sheet or math.ceil(len(sections)/4)
+#                print(f'hs = {half_sheet}')
+                blank_pages = [0]*len(sections[0])
+                sections.insert(2*(half_sheet-1), blank_pages)
+                sections.insert(2*(half_sheet-1), blank_pages)
+            result = self._combine_list(sections)
+        else:
+            result = sections
         return result
 
-    @property
-    def sheets(self):
-        """ Атрибут класса, содержащий список словарей, соответствующих листам.
+    def _makeSheets(self):
+        """ Метод, возвращающий список словарей, соответствующих листам.
             Returns:
                 Список листов раскладки
         """
-        quarters = [[x] for x in self.pages[:]]
-        if len(quarters[0]) <= self._pages_per_quarter:
-            folds = int(math.log2(self._pages_per_half_sheet)) - 1
-            for _ in range(folds):
-                quarters = self._combine_list(quarters)
-            quarters *= self.nesting
-            if len(quarters) % 4:
-                half_sheet = self.half_sheet or math.ceil(len(quarters)/4)
-#                print(f'hs = {half_sheet}')
-                blank_pages = [0]*len(quarters[0])
-                quarters.insert(2*(half_sheet-1), blank_pages)
-                quarters.insert(2*(half_sheet-1), blank_pages)
-            halves = self._combine_list(quarters)
-        else:
-            halves = quarters
+        halves = self._makeSections()
 #        print(f"halves = {halves}")
         result = [{"front": halves[i], "back": halves[i+1]} for i in range(0, len(halves), 2)]
 #        print(f"sheets = {result}")
@@ -112,7 +122,7 @@ class ImpCalculator:
             Returns:
                 Список листов раскладки
         """
-        return self.sheets
+        return self._makeSheets()
 
 
 def main():
