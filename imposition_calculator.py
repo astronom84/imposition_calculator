@@ -55,8 +55,8 @@ class ImpCalculator:
         """ Вспомогательная функция, объединяет элементы входного списка:
             первый с последним, второй с предпоследним и т.д.
         """
-        plist = plist[:]
-        result = [plist[i] + plist[-(i+1)] for i in range(len(plist)//2)]
+        pl = plist[:]
+        result = [pl[i] + pl.pop() for i in range(len(pl) // 2)]
         return result
 
     def _makePages(self):
@@ -75,7 +75,6 @@ class ImpCalculator:
             for i in range(middle):
                 result[i] = self.first_page + i
                 result[-(i+1)] = self.last_page - i
-#        print(f"pages = {result}")
         return result
 
     def _makeSections(self):
