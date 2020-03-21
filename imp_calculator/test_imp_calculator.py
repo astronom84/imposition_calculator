@@ -1,7 +1,6 @@
 import unittest
 import json
-from imp_calculator.imp_calculator import ImpCalculator
-
+from imp_calculator import ImpCalculator
 
 class ImpCalculator_TestCase(unittest.TestCase):
     def test_init(self):
@@ -38,11 +37,11 @@ class ImpCalculator_TestCase(unittest.TestCase):
         self.assertDictEqual(target, result)
 
     def test_generate(self):
-        data_files = ("json/test_A1_general.json",
-                      "json/test_A2_general.json",
-                      "json/test_A3_general.json",
-                      "json/test_A3_half.json",
-                      "json/test_A3_nesting.json")
+        data_files = ("test_data/test_A1_general.json",
+                      "test_data/test_A2_general.json",
+                      "test_data/test_A3_general.json",
+                      "test_data/test_A3_half.json",
+                      "test_data/test_A3_nesting.json")
         for filename in data_files:
             with open(filename) as a1test:
                 test_values = json.load(a1test)
