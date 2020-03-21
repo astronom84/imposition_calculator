@@ -1,6 +1,6 @@
 import unittest
 import json
-from imposition_calculator import ImpCalculator
+from imp_calculator.imp_calculator import ImpCalculator
 
 
 class ImpCalculator_TestCase(unittest.TestCase):
