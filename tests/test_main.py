@@ -37,100 +37,27 @@ class ImpCalculator_TestCase(unittest.TestCase):
             result[i] = gen.pages_per_sheet
         self.assertDictEqual(target, result)
 
-    def test_generate_A1(self):
-        with open("test_A1_general.json") as a1test:
-            test_values = json.load(a1test)
-        params = test_values[0]
-        for i in range(1, len(test_values)):
-            params.update(test_values[i])
-            gen = ImpCalculator(
-                                number_of_pages=params['number_of_pages'],
-                                pages_per_sheet=params['pages_per_sheet'],
-                                first_page=params['first_page'],
-                                last_page=params['last_page'],
-                                runs=params['runs'],
-                                nesting=params['nesting'],
-                                half_sheet=params['half_sheet']
-                                )
-            target = params['sheets']
-            result = gen.generate()
-            self.assertListEqual(target, result)
-
-    def test_generate_A2(self):
-        with open("test_A2_general.json") as a1test:
-            test_values = json.load(a1test)
-        params = test_values[0]
-        for i in range(1, len(test_values)):
-            params.update(test_values[i])
-            gen = ImpCalculator(
-                                number_of_pages=params['number_of_pages'],
-                                pages_per_sheet=params['pages_per_sheet'],
-                                first_page=params['first_page'],
-                                last_page=params['last_page'],
-                                runs=params['runs'],
-                                nesting=params['nesting'],
-                                half_sheet=params['half_sheet']
-                                )
-            target = params['sheets']
-            result = gen.generate()
-            self.assertListEqual(target, result)
-
-    def test_generate_A3(self):
-        with open("test_A3_general.json") as a1test:
-            test_values = json.load(a1test)
-        params = test_values[0]
-        for i in range(1, len(test_values)):
-            params.update(test_values[i])
-            gen = ImpCalculator(
-                                number_of_pages=params['number_of_pages'],
-                                pages_per_sheet=params['pages_per_sheet'],
-                                first_page=params['first_page'],
-                                last_page=params['last_page'],
-                                runs=params['runs'],
-                                nesting=params['nesting'],
-                                half_sheet=params['half_sheet']
-                                )
-            target = params['sheets']
-            result = gen.generate()
-            self.assertListEqual(target, result)
-
-    def test_generate_A3_half(self):
-        with open("test_A3_half.json") as a1test:
-            test_values = json.load(a1test)
-        params = test_values[0]
-        for i in range(1, len(test_values)):
-            params.update(test_values[i])
-            gen = ImpCalculator(
-                                number_of_pages=params['number_of_pages'],
-                                pages_per_sheet=params['pages_per_sheet'],
-                                first_page=params['first_page'],
-                                last_page=params['last_page'],
-                                runs=params['runs'],
-                                nesting=params['nesting'],
-                                half_sheet=params['half_sheet']
-                                )
-            target = params['sheets']
-            result = gen.generate()
-            self.assertListEqual(target, result)
-
-    def test_generate_A3_nesting(self):
-        with open("test_A3_nesting.json") as a1test:
-            test_values = json.load(a1test)
-        params = test_values[0]
-        for i in range(1, len(test_values)):
-            params.update(test_values[i])
-            gen = ImpCalculator(
-                                number_of_pages=params['number_of_pages'],
-                                pages_per_sheet=params['pages_per_sheet'],
-                                first_page=params['first_page'],
-                                last_page=params['last_page'],
-                                runs=params['runs'],
-                                nesting=params['nesting'],
-                                half_sheet=params['half_sheet']
-                                )
-            target = params['sheets']
-            result = gen.generate()
-            self.assertListEqual(target, result)
-if __name__ == '__main__':
-    unittest.main()
-
+    def test_generate(self):
+        data_files = ("json/test_A1_general.json",
+                      "json/test_A2_general.json",
+                      "json/test_A3_general.json",
+                      "json/test_A3_half.json",
+                      "json/test_A3_nesting.json")
+        for filename in data_files:
+            with open(filename) as a1test:
+                test_values = json.load(a1test)
+            params = test_values[0]
+            for i in range(1, len(test_values)):
+                params.update(test_values[i])
+                gen = ImpCalculator(
+                                    number_of_pages=params['number_of_pages'],
+                                    pages_per_sheet=params['pages_per_sheet'],
+                                    first_page=params['first_page'],
+                                    last_page=params['last_page'],
+                                    runs=params['runs'],
+                                    nesting=params['nesting'],
+                                    half_sheet=params['half_sheet']
+                                    )
+                target = params['sheets']
+                result = gen.generate()
+                self.assertListEqual(target, result)
