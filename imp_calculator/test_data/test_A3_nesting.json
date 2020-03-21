@@ -1,0 +1,25 @@
+[
+    {
+        "_comment": "nesting",
+        "pages_per_sheet": 8,
+        "first_page": 1,
+        "runs": 1,
+        "half_sheet": 1
+
+    },
+    {
+        "number_of_pages": 8,
+        "last_page": 8,
+        "nesting": 2,
+        "sheets": [
+            {
+                "front": [1, 8, 4, 5],
+                "back": [2, 7, 3, 6]
+            },
+            {
+                "front": [3, 6, 2, 7],
+                "back": [4, 5, 1, 8]
+            }
+        ]
+    }
+]
