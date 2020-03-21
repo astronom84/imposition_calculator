@@ -1,0 +1,35 @@
+[
+    {
+        "_comment": "half",
+        "pages_per_sheet": 8,
+        "first_page": 1,
+        "runs": 1,
+        "nesting": 1
+    },
+    {
+        "number_of_pages": 4,
+        "last_page": 4,
+        "half_sheet": 1,
+        "sheets": [
+            {
+                "front": [0, 0, 2, 3],
+                "back": [0, 0, 1, 4]
+            }
+        ]
+    },
+    {
+        "number_of_pages": 12,
+        "last_page": 12,
+        "half_sheet": 2,
+        "sheets": [
+            {
+                "front": [1, 12, 6, 7],
+                "back": [2, 11, 5, 8]
+            },
+            {
+                "front": [0, 0, 4, 9],
+                "back": [0, 0, 3, 10]
+            }
+        ]
+    }
+]
