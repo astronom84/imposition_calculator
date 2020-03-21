@@ -6,7 +6,7 @@ from imposition_calculator import ImpCalculator
 class ImpCalculator_TestCase(unittest.TestCase):
     def test_init(self):
         target= dict(number_of_pages=24, first_page=1, last_page=24, pages_per_sheet=8,
-        runs=1, nesting=1, half_sheet=0, _pages_per_section=4)
+                     runs=1, nesting=1, half_sheet=0, _pages_per_sheet_side=4)
         gen = ImpCalculator(target['number_of_pages'], target['pages_per_sheet'], target['first_page'], target['last_page'], target['runs'], target['nesting'], target['half_sheet'])
         self.assertDictEqual(target, gen.__dict__)
 

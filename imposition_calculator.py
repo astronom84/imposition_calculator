@@ -40,7 +40,7 @@ class ImpCalculator:
 
         self.number_of_pages = number_of_pages
         self.pages_per_sheet = pages_per_sheet
-        self._pages_per_section = self.pages_per_sheet // 2
+        self._pages_per_sheet_side = self.pages_per_sheet // 2
         if last_page:
             self.first_page = min(first_page, last_page)
             self.last_page = max(last_page, first_page)
@@ -64,45 +64,38 @@ class ImpCalculator:
             Returns:
                 Список страниц
         """
-        number_of_pages = (math.ceil(self.number_of_pages/self._pages_per_section)*self._pages_per_section)
+        number_of_pages = (math.ceil(self.number_of_pages / self._pages_per_sheet_side) * self._pages_per_sheet_side)
         if (self.last_page - self.first_page) < number_of_pages-1:
-            result = list(range(self.first_page, self.last_page+1))
-            result += [0]*(number_of_pages-len(result))
+            pages = list(range(self.first_page, self.last_page+1))
+            pages += [0]*(number_of_pages-len(pages))
         else:
-            result = [0]*number_of_pages
-            middle = len(result) // 2
+            pages = [0]*number_of_pages
+            middle = len(pages) // 2
             for i in range(middle):
-                result[i] = self.first_page + i
-                result[-(i+1)] = self.last_page - i
-        return result
+                pages[i] = self.first_page + i
+                pages[-(i+1)] = self.last_page - i
+        return pages
 
     def _makeSections(self):
         """ Метод возвращает список "секций".
         Секция соответствует стороне листа
-        Для листа А0 это будет часть, размером А2
-        В этом же методе добавляются пустые страницы для половинок, а также
-        обрабатывается случай печати нескольких копий в одной тетради
-            Returns: 
+        Для листа А1 это будет часть, размером А2
+            Returns:
                 List
         """
-        pages = self._makePages()
-        sections = [[x] for x in pages]
-        pages_per_quarter = self._pages_per_section // 2
-        if len(sections[0]) <= pages_per_quarter:
-            folds = int(math.log2(self._pages_per_section)) - 1
-            for _ in range(folds):
+        sections = [[x] for x in self._makePages()]
+        if self.pages_per_sheet > 2:
+            if self.pages_per_sheet > 4:
                 sections = self._combine_list(sections)
-            sections *= self.nesting
+            sections = sections*self.nesting
             if len(sections) % 4:
                 half_sheet = self.half_sheet or math.ceil(len(sections)/4)
-#                print(f'hs = {half_sheet}')
                 blank_pages = [0]*len(sections[0])
                 sections.insert(2*(half_sheet-1), blank_pages)
                 sections.insert(2*(half_sheet-1), blank_pages)
-            result = self._combine_list(sections)
-        else:
-            result = sections
-        return result
+            while len(sections[0]) < self._pages_per_sheet_side:
+                sections = self._combine_list(sections)
+        return sections
 
     def _makeSheets(self):
         """ Метод, возвращающий список словарей, соответствующих листам.
@@ -110,9 +103,7 @@ class ImpCalculator:
                 Список листов раскладки
         """
         halves = self._makeSections()
-#        print(f"halves = {halves}")
         result = [{"front": halves[i], "back": halves[i+1]} for i in range(0, len(halves), 2)]
-#        print(f"sheets = {result}")
         return result
 
     def generate(self):
